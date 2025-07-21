@@ -1,10 +1,40 @@
-export default function LoginPage(){
-    return(
-        <form className="login">
-            <h1>Login</h1>
-            <input type="text" placeholder="username" />
-            <input type="password" placeholder="password" />
-            <button>Login</button>
-        </form>
-    )
+import { useState } from "react";
+import axios from "axios";
+
+export default function LoginPage() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  async function login(ev) {
+    ev.preventDefault();
+
+    try {
+      const response = await axios.post('http://localhost:4000/login', {
+        username,
+        password
+      });
+      console.log('Login success:', response.data);
+    } catch (error) {
+      console.error('Login error:', error.response?.data || error.message);
+    }
+  }
+
+  return (
+    <form className="login" onSubmit={login}>
+      <h1>Login</h1>
+      <input
+        type="text"
+        placeholder="username"
+        value={username}
+        onChange={ev => setUsername(ev.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="password"
+        value={password}
+        onChange={ev => setPassword(ev.target.value)}
+      />
+      <button>Login</button>
+    </form>
+  );
 }
