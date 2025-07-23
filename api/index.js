@@ -3,12 +3,17 @@ import cors from "cors";
 import mongoose from 'mongoose';
 import User from './models/User.js';
 import bcrypt from "bcryptjs";
+import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
+
 const app = express();
 
 const salt = bcrypt.genSaltSync(10);
+const secret = 'qwertyiopasdfghjklzxcvbnm';
 
-app.use(cors());
+app.use(cors({credentials:true, origin:'http://localhost:3000'}));
 app.use(express.json());
+app.use(cookieParser());
 
 mongoose.connect('mongodb+srv://Shekhar:Shekhar123@my-blog.ypqpfgu.mongodb.net/?retryWrites=true&w=majority&appName=My-Blog')
 
@@ -29,9 +34,24 @@ app.post('/login', async(req,res) =>{
     const{username, password} = req.body;
     const userDoc = await User.findOne({username});
     const passOk = bcrypt.compareSync(password, userDoc.password);
-    console.log(passOk);
+    if(passOk){
+
+        jwt.sign({username, id:userDoc._id} ,secret, {}, (err,token) =>{
+            if(err) throw err;
+            res.cookie('token', token).json('ok')
+        });
+
+    }
+    else{
+        res.status(400).json('wrong credentials');
+    }
 
 })
+
+app.get('/profile' ,(req,res) => {
+    res.json(req.cookies);
+})
+//this is where to continue from ;
 
 app.listen(4000);
 
