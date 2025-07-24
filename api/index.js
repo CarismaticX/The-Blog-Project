@@ -49,9 +49,17 @@ app.post('/login', async(req,res) =>{
 })
 
 app.get('/profile' ,(req,res) => {
-    res.json(req.cookies);
+    const {token} = req.cookies;
+    jwt.verify(token, secret, {}, (err, info) => {
+        if(err) throw err;
+        res.json(info);
+    })
 })
-//this is where to continue from ;
+
+app.post('/logout', (req,res) => {
+    res.cookie('token', '').json('ok')
+})
+
 
 app.listen(4000);
 
